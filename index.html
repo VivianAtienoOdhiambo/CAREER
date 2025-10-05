@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnHub - E-Learning Platform</title>
+    <link rel="stylesheet" href="styles.css">
+    <link reel="script" href="script.js">
+    </head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎓 LearnHub</h1>
+            <p class="subtitle">Your Gateway to Knowledge</p>
+        </header>
+
+        <!-- Home View -->
+        <div id="homeView">
+            <div class="courses-grid" id="coursesGrid"></div>
+        </div>
+
+        <!-- Detail View -->
+        <div id="detailView" class="detail-view">
+            <div class="back-btn-container">
+                <button class="btn btn-secondary" onclick="showHome()">← Back to Courses</button>
+            </div>
+            <div class="detail-header">
+                <h2 class="detail-title" id="detailTitle"></h2>
+                <p id="detailDesc"></p>
+            </div>
+            <div class="lesson-list" id="lessonList"></div>
+            <button class="btn btn-success" id="completeBtn" onclick="completeCourse()">
+                ✓ Mark Course as Completed
+            </button>
+        </div>
+    </div>
+    <script>
+const courses = [
+            {
+                id: 1,
+                title: "Web Development Fundamentals",
+                description: "Learn the basics of HTML, CSS, and JavaScript to build modern websites.",
+                lessons: [
+                    { title: "Introduction to HTML", duration: "45 min" },
+                    { title: "CSS Styling Basics", duration: "60 min" },
+                    { title: "JavaScript Fundamentals", duration: "90 min" },
+                    { title: "Responsive Design", duration: "75 min" },
+                    { title: "Building Your First Website", duration: "120 min" }
+                ],
+                completed: false
+            },
+            {
+                id: 2,
+                title: "Python for Beginners",
+                description: "Start your programming journey with Python - the most beginner-friendly language.",
+                lessons: [
+                    { title: "Setting Up Python", duration: "30 min" },
+                    { title: "Variables and Data Types", duration: "50 min" },
+                    { title: "Control Flow and Loops", duration: "70 min" },
+                    { title: "Functions and Modules", duration: "80 min" },
+                    { title: "Project: Simple Calculator", duration: "100 min" }
+                ],
+                completed: false
+            },
+            {
+                id: 3,
+                title: "Digital Marketing Essentials",
+                description: "Master the fundamentals of digital marketing and grow your online presence.",
+                lessons: [
+                    { title: "Introduction to Digital Marketing", duration: "40 min" },
+                    { title: "SEO Basics", duration: "65 min" },
+                    { title: "Social Media Marketing", duration: "55 min" },
+                    { title: "Email Marketing Strategies", duration: "60 min" },
+                    { title: "Analytics and Reporting", duration: "70 min" }
+                ],
+                completed: false
+            },
+            {
+                id: 4,
+                title: "Graphic Design Principles",
+                description: "Learn the core principles of design and create stunning visual content.",
+                lessons: [
+                    { title: "Design Theory Fundamentals", duration: "50 min" },
+                    { title: "Color Theory", duration: "60 min" },
+                    { title: "Typography Essentials", duration: "55 min" },
+                    { title: "Layout and Composition", duration: "70 min" },
+                    { title: "Project: Design a Poster", duration: "90 min" }
+                ],
+                completed: false
+            }
+        ];
+
+        let currentCourseId = null;
+
+        function renderCourses() {
+            const grid = document.getElementById('coursesGrid');
+            grid.innerHTML = '';
+            
+            courses.forEach(course => {
+                const card = document.createElement('div');
+                card.className = 'course-card';
+                card.onclick = () => showCourseDetail(course.id);
+                
+                card.innerHTML = `
+                    <h3 class="course-title">${course.title}</h3>
+                    <p class="course-desc">${course.description}</p>
+                    <div class="course-meta">
+                        <span class="lessons-count">${course.lessons.length} Lessons</span>
+                        <span class="progress-badge ${course.completed ? 'completed' : 'in-progress'}">
+                            ${course.completed ? 'Completed' : 'Not Started'}
+                        </span>
+                    </div>
+                    <button class="btn btn-primary" onclick="event.stopPropagation(); showCourseDetail(${course.id})">
+                        View Course
+                    </button>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+
+        function showCourseDetail(courseId) {
+            const course = courses.find(c => c.id === courseId);
+            if (!course) return;
+            
+            currentCourseId = courseId;
+            
+            document.getElementById('homeView').classList.add('hidden');
+            document.getElementById('detailView').style.display = 'block';
+            
+            document.getElementById('detailTitle').textContent = course.title;
+            document.getElementById('detailDesc').textContent = course.description;
+            
+            const lessonList = document.getElementById('lessonList');
+            lessonList.innerHTML = '<h3 style="color: #7c3aed; margin-bottom: 20px;">Course Lessons</h3>';
+            
+            course.lessons.forEach((lesson, index) => {
+                const lessonItem = document.createElement('div');
+                lessonItem.className = 'lesson-item';
+                lessonItem.innerHTML = `
+                    <div class="lesson-title">Lesson ${index + 1}: ${lesson.title}</div>
+                    <div class="lesson-duration">⏱ ${lesson.duration}</div>
+                `;
+                lessonList.appendChild(lessonItem);
+            });
+            
+            const completeBtn = document.getElementById('completeBtn');
+            if (course.completed) {
+                completeBtn.textContent = '✓ Course Completed';
+                completeBtn.style.background = '#6b7280';
+                completeBtn.disabled = true;
+                completeBtn.style.cursor = 'not-allowed';
+            } else {
+                completeBtn.textContent = '✓ Mark Course as Completed';
+                completeBtn.style.background = '#10b981';
+                completeBtn.disabled = false;
+                completeBtn.style.cursor = 'pointer';
+            }
+        }
+
+        function showHome() {
+            document.getElementById('detailView').style.display = 'none';
+            document.getElementById('homeView').classList.remove('hidden');
+            currentCourseId = null;
+        }
+
+        function completeCourse() {
+            if (!currentCourseId) return;
+            
+            const course = courses.find(c => c.id === currentCourseId);
+            if (course && !course.completed) {
+                course.completed = true;
+                
+                const completeBtn = document.getElementById('completeBtn');
+                completeBtn.textContent = '✓ Course Completed';
+                completeBtn.style.background = '#6b7280';
+                completeBtn.disabled = true;
+                completeBtn.style.cursor = 'not-allowed';
+                
+                alert('🎉 Congratulations! You have completed this course!');
+                
+                renderCourses();
+            }
+        }
+
+        renderCourses();
+    </script>
+</body>
+</html>
+
